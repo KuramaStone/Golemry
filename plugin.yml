@@ -1,0 +1,12 @@
+name: Golemry
+version: 1.0.0
+main: me.xthegamercodes.Golemry.Golemry
+
+author: xTheGamerCodes
+
+commands:
+  spawngolem:
+    description: Spawns a golem
+    aliases: [sg]
+  updategolemry:
+    description: Refreshes past golems into new versions!
