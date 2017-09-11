@@ -95,8 +95,11 @@ public class Golemry extends JavaPlugin {
 					}
 				}
 				else {
-					sender.sendMessage(ChatColor.RED + "Only players may use this command.");
+					sender.sendMessage(ChatColor.RED + "You do not have permission to do this!");
 				}
+			}
+			else {
+				sender.sendMessage(ChatColor.RED + "Only players may use this command.");
 			}
 		}
 
