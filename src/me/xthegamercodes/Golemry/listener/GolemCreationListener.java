@@ -32,24 +32,24 @@ public class GolemCreationListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void onItemFramePlace(PlayerInteractAtEntityEvent event) {
 		Player player = event.getPlayer();
+		Entity clicked = event.getRightClicked();
 
-		if(player.hasPermission("Golemry.create.harvester")) {
-			Entity clicked = event.getRightClicked();
+		if(clicked instanceof ItemFrame) {
+			ItemFrame frame = (ItemFrame) clicked;
 
-			if(clicked instanceof ItemFrame) {
-				ItemFrame frame = (ItemFrame) clicked;
+			World world = ((CraftWorld) frame.getWorld()).getHandle();
+			Block block = frame.getLocation().getBlock();
+			block = block.getRelative(frame.getAttachedFace());
 
-				World world = ((CraftWorld) frame.getWorld()).getHandle();
-				Block block = frame.getLocation().getBlock();
-				block = block.getRelative(frame.getAttachedFace());
+			BlockPosition blockposition = new BlockPosition(block.getX(), block.getY(), block.getZ());
 
-				BlockPosition blockposition = new BlockPosition(block.getX(), block.getY(), block.getZ());
+			EntityGolem entitygolem = null;
 
-				EntityGolem entitygolem = null;
+			if(frame.getItem() != null) {
+				Material material = frame.getItem().getType();
+				GolemType type = GolemUtils.getGolemType(material);
 
-				if(frame.getItem() != null) {
-					Material material = frame.getItem().getType();
-					GolemType type = GolemUtils.getGolemType(material);
+				if(GolemUtils.canCreate(player, type)) {
 					entitygolem = GolemUtils.createGolem(GolemUtils.getWorld(block.getWorld()), type);
 
 					if(entitygolem != null) {
@@ -59,7 +59,6 @@ public class GolemCreationListener implements Listener {
 					}
 				}
 			}
-
 		}
 	}
 

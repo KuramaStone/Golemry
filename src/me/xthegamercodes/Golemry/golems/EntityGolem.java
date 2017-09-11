@@ -188,7 +188,7 @@ public abstract class EntityGolem extends EntityZombie {
 				type = GolemType.GUARD;
 			}
 			else if(this instanceof HarvestGolem) {
-				type = GolemType.HARVEST;
+				type = GolemType.HARVESTER;
 			}
 			else if(this instanceof MinerGolem) {
 				type = GolemType.MINER;

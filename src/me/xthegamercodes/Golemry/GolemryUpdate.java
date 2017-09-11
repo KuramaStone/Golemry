@@ -63,7 +63,7 @@ public class GolemryUpdate {
 			entitygolem = new GuardGolem(entity.getWorld());
 			entitygolem.setEquipment(0, entity.getEquipment(0));
 		}
-		else if(type == GolemType.HARVEST) {
+		else if(type == GolemType.HARVESTER) {
 			entitygolem = new HarvestGolem(entity.getWorld());
 		}
 		else if(type == GolemType.MINER) {

@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemType;
@@ -136,7 +137,7 @@ public class GolemUtils {
 
 	public static GolemType getGolemType(Material material) {
 		if(material == Material.DIAMOND_HOE) { // Harvest
-			return GolemType.HARVEST;
+			return GolemType.HARVESTER;
 		}
 		else if(material == Material.EYE_OF_ENDER) { // Seeker
 			return GolemType.SEEKER;
@@ -162,7 +163,7 @@ public class GolemUtils {
 		else if(type == GolemType.GUARD) {
 			return new GuardGolem(world);
 		}
-		else if(type == GolemType.HARVEST) {
+		else if(type == GolemType.HARVESTER) {
 			return new HarvestGolem(world);
 		}
 		else if(type == GolemType.MINER) {
@@ -200,6 +201,13 @@ public class GolemUtils {
 		}
 
 		return itemstack;
+	}
+
+	public static boolean canCreate(Player player, GolemType type) {
+		String golemname = type.toString().toLowerCase();
+		golemname = golemname.substring(0, 1).toLowerCase() + golemname.substring(1, golemname.length());
+		
+		return player.hasPermission("Golemry.create." + golemname);
 	}
 
 }
