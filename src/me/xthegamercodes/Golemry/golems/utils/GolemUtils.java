@@ -17,6 +17,7 @@ import me.xthegamercodes.Golemry.golems.type.GuardGolem;
 import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
 import me.xthegamercodes.Golemry.golems.type.MinerGolem;
 import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
+import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityZombie;
 import net.minecraft.server.v1_8_R3.ItemStack;
@@ -151,6 +152,9 @@ public class GolemUtils {
 		else if(material == Material.RED_ROSE) { // Breeder
 			return GolemType.BREEDER;
 		}
+		else if(material == Material.FURNACE) {
+			return GolemType.SMITHY;
+		}
 
 		return null;
 	}
@@ -171,6 +175,9 @@ public class GolemUtils {
 		}
 		else if(type == GolemType.SEEKER) {
 			return new SeekerGolem(world);
+		}
+		else if(type == GolemType.SMITHY) {
+			return new SmithGolem(world);
 		}
 
 		return null;

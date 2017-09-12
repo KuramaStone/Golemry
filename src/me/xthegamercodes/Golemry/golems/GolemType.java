@@ -2,7 +2,7 @@ package me.xthegamercodes.Golemry.golems;
 
 public enum GolemType {
 
-	BREEDER(1), GUARD(2), HARVESTER(3), MINER(4), SEEKER(5);
+	BREEDER(1), GUARD(2), HARVESTER(3), MINER(4), SEEKER(5), SMITHY(6);
 
 	private int id;
 

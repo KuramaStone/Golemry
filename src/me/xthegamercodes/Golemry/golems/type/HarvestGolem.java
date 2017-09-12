@@ -25,8 +25,6 @@ import net.minecraft.server.v1_8_R3.World;
 
 public class HarvestGolem extends EntityGolem {
 
-	public InventorySubcontainer inventory;
-
 	private List<Item> pickings;
 
 	public HarvestGolem(World world) {

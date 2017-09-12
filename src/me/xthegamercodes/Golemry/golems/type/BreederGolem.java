@@ -8,7 +8,6 @@ import me.xthegamercodes.Golemry.golems.GolemRank;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestBreedableMob;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import net.minecraft.server.v1_8_R3.EntityHuman;
-import net.minecraft.server.v1_8_R3.InventorySubcontainer;
 import net.minecraft.server.v1_8_R3.PathfinderGoalFloat;
 import net.minecraft.server.v1_8_R3.PathfinderGoalHurtByTarget;
 import net.minecraft.server.v1_8_R3.PathfinderGoalLookAtPlayer;
@@ -17,8 +16,6 @@ import net.minecraft.server.v1_8_R3.World;
 
 public class BreederGolem extends EntityGolem {
 
-	public InventorySubcontainer inventory;
-
 	public BreederGolem(World world) {
 		this(world, GolemRank.STONE);
 	}
@@ -26,27 +23,6 @@ public class BreederGolem extends EntityGolem {
 	public BreederGolem(World world, GolemRank rank) {
 		super(world.getWorld(), Color.FUCHSIA, ChatColor.LIGHT_PURPLE + "Breeder Golem", rank);
 	}
-
-	// protected void a(EntityItem entityitem) {
-	// ItemStack itemstack = entityitem.getItemStack();
-	// Item item = itemstack.getItem();
-	//
-	// if(a(item)) {
-	// ItemStack itemstack1 = this.inventory.a(itemstack);
-	//
-	// if(itemstack1 == null) {
-	// entityitem.die();
-	// }
-	// else {
-	// itemstack.count = itemstack1.count;
-	// }
-	// }
-	// }
-	//
-	// private boolean a(Item item) {
-	// return (item == Items.WHEAT) || (item == Items.CARROT) || (item ==
-	// Items.WHEAT_SEEDS);
-	// }
 
 	@SuppressWarnings("rawtypes")
 	@Override

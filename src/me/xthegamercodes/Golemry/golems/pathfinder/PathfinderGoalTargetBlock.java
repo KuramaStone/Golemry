@@ -1,6 +1,6 @@
 package me.xthegamercodes.Golemry.golems.pathfinder;
 
-import me.xthegamercodes.Golemry.golems.type.MinerGolem;
+import me.xthegamercodes.Golemry.golems.EntityGolem;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.PathfinderGoal;
 import net.minecraft.server.v1_8_R3.World;
@@ -8,11 +8,11 @@ import net.minecraft.server.v1_8_R3.World;
 public abstract class PathfinderGoalTargetBlock extends PathfinderGoal {
 
 	protected BlockPosition b;
-	protected MinerGolem c;
+	protected EntityGolem c;
 	private int h;
 	private boolean g;
 
-	public PathfinderGoalTargetBlock(MinerGolem c, int h) {
+	public PathfinderGoalTargetBlock(EntityGolem c, int h) {
 		this.c = c;
 		this.h = h;
 	}

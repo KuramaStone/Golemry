@@ -22,8 +22,6 @@ import net.minecraft.server.v1_8_R3.World;
 
 public class SeekerGolem extends EntityGolem {
 
-	public InventorySubcontainer inventory;
-
 	public SeekerGolem(World world) {
 		this(world, GolemRank.STONE);
 	}

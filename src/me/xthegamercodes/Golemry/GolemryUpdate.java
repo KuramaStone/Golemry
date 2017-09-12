@@ -13,6 +13,7 @@ import me.xthegamercodes.Golemry.golems.type.GuardGolem;
 import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
 import me.xthegamercodes.Golemry.golems.type.MinerGolem;
 import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
+import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import me.xthegamercodes.Golemry.golems.utils.GolemUtils;
 import net.minecraft.server.v1_8_R3.EntityZombie;
 import net.minecraft.server.v1_8_R3.Vec3D;
@@ -74,6 +75,11 @@ public class GolemryUpdate {
 			SeekerGolem seeker = new SeekerGolem(entity.getWorld());
 			seeker.inventory.items = GolemUtils.buildItem(entity.toString());
 			entitygolem = seeker;
+		}
+		else if(type == GolemType.SMITHY) {
+			SmithGolem smith = new SmithGolem(entity.getWorld());
+			smith.inventory.items = GolemUtils.buildItem(entity.toString());
+			entitygolem = smith;
 		}
 		
 		if(entitygolem != null) {

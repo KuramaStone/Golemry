@@ -20,13 +20,17 @@ import me.xthegamercodes.Golemry.golems.type.GuardGolem;
 import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
 import me.xthegamercodes.Golemry.golems.type.MinerGolem;
 import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
+import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import net.minecraft.server.v1_8_R3.EntityZombie;
+import net.minecraft.server.v1_8_R3.InventorySubcontainer;
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 import net.minecraft.server.v1_8_R3.Vec3D;
 
 public abstract class EntityGolem extends EntityZombie {
+
+	public InventorySubcontainer inventory;
 	
 	private final String golemName;
 
@@ -195,6 +199,9 @@ public abstract class EntityGolem extends EntityZombie {
 			}
 			else if(this instanceof SeekerGolem) {
 				type = GolemType.SEEKER;
+			}
+			else if(this instanceof SmithGolem) {
+				type = GolemType.SMITHY;
 			}
 		}
 		return type;
