@@ -117,8 +117,12 @@ public class PathfinderGoalSmith extends PathfinderGoalGoto {
 		ItemStack inFurnace = furnace.getItem(slot);
 		ItemStack inInv = inventory.getItem(slot);
 		
+		if(inInv == null) {
+			return false;
+		}
+		
 		if(inFurnace == null) {
-			return inInv != null;
+			return true;
 		}
 
 		if(inFurnace.doMaterialsMatch(inInv)) { // Checks if the items are the same

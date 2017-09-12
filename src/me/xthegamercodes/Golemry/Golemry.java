@@ -31,7 +31,9 @@ public class Golemry extends JavaPlugin {
 	public static String VERSION = "1.0.0";
 
 	private final List<String> golems = new ArrayList<>(Arrays.asList("Breeder", "Guard", "Harvester", "Miner", "Seeker", "Smithy"));
-
+	
+	private static final String link = "http://bit.ly/2fghgPS";
+	
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -117,12 +119,18 @@ public class Golemry extends JavaPlugin {
 					int entities_updated = GolemryUpdate.updateGolems();
 					sender.sendMessage(ChatColor.GREEN +
 							(entities_updated + " golems updated! If you enjoy the plugin,"
-									+ " then please give it a review and positive rating @ [Insert Link Here]"));
+									+ " then please give it a review and positive rating @ " + link));
 				}
 				return true;
 			}
 			else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to do this.");
+			}
+		}
+		
+		else if(command.getName().equalsIgnoreCase("golemhelp")) {
+			for(String str : GolemUtils.HELP) {
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
 			}
 		}
 

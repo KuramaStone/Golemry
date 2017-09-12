@@ -85,6 +85,8 @@ public class GolemryUpdate {
 		if(entitygolem != null) {
 			entitygolem.spawn(currentLocation);
 			entitygolem.setSpawnedLocation(spawnedLocation);
+			entitygolem.yaw = entity.yaw + 0;
+			entitygolem.pitch = entity.pitch + 0;
 			
 			entity.getWorld().removeEntity(entity);
 		}

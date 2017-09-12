@@ -105,7 +105,7 @@ public abstract class EntityGolem extends EntityZombie {
 
 	public boolean spawn(Location location) {
 		spawnedLocation = new Vec3D(location.getX(), location.getY(), location.getZ());
-		setPositionRotation(location.getX(), location.getY(), location.getZ(), -90.0f, 0.0f);
+		setPosition(location.getX(), location.getY(), location.getZ());
 
 		mark();
 

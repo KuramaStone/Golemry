@@ -29,6 +29,17 @@ import net.minecraft.server.v1_8_R3.World;
 
 public class GolemUtils {
 
+	public static final String[] HELP = {
+			"&e- - - - - - - - - - - - - - -",
+			"&6Summon Golem:",
+			"&5 - Breeder Golem &r: &5Red Rose/Poppy",
+			"&c - Guard Golem &r: &cDiamond Sword",
+			"&2 - Harvester Golem &r: &2Diamond Hoe",
+			"&8 - Miner Golem &r: &8Diamond Pickaxe",
+			"&0 - Smith Golem &r: &0Charcoal",
+			"&e- - - - - - - - - - - - - - -"
+			};
+
 	public static net.minecraft.server.v1_8_R3.Entity getNMSEntity(Entity entity) {
 		if(entity == null) {
 			return null;
@@ -136,7 +147,7 @@ public class GolemUtils {
 		return 0;
 	}
 
-	public static GolemType getGolemType(Material material) {
+	public static GolemType getGolemType(Material material, short damage) {
 		if(material == Material.DIAMOND_HOE) { // Harvest
 			return GolemType.HARVESTER;
 		}
@@ -152,8 +163,10 @@ public class GolemUtils {
 		else if(material == Material.RED_ROSE) { // Breeder
 			return GolemType.BREEDER;
 		}
-		else if(material == Material.FURNACE) {
-			return GolemType.SMITHY;
+		else if(material == Material.COAL) {
+			if(damage == 1) {
+				return GolemType.SMITHY;
+			}
 		}
 
 		return null;

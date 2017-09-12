@@ -1,5 +1,5 @@
 name: Golemry
-version: 1.0.0
+version: 1.1.0
 main: me.xthegamercodes.Golemry.Golemry
 
 author: xTheGamerCodes
@@ -10,3 +10,6 @@ commands:
     aliases: [sg]
   updategolemry:
     description: Refreshes past golems into new versions!
+  golemhelp:
+    description: Lists help for Golemry!
+    aliases: [gh, helpgolemry, helpgolemry]

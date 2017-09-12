@@ -47,7 +47,7 @@ public class GolemCreationListener implements Listener {
 
 			if(frame.getItem() != null) {
 				Material material = frame.getItem().getType();
-				GolemType type = GolemUtils.getGolemType(material);
+				GolemType type = GolemUtils.getGolemType(material, frame.getItem().getDurability());
 
 				if(GolemUtils.canCreate(player, type)) {
 					entitygolem = GolemUtils.createGolem(GolemUtils.getWorld(block.getWorld()), type);

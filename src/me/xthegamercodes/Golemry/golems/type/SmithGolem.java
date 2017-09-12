@@ -12,6 +12,8 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalLinger;
+import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem;
+import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem.TestItem;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalSmith;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import net.minecraft.server.v1_8_R3.EntityHuman;
@@ -26,8 +28,20 @@ import net.minecraft.server.v1_8_R3.PathfinderGoalRandomLookaround;
 
 public class SmithGolem extends EntityGolem {
 
-	private final List<Material> validFuel = Arrays.asList(Material.COAL, Material.COAL_BLOCK, Material.BLAZE_ROD);
-	private final List<Material> validSource = Arrays.asList(Material.COBBLESTONE, Material.NETHERRACK);
+	private static final List<Material> validFuel = Arrays.asList(Material.COAL, Material.COAL_BLOCK, Material.BLAZE_ROD);
+	private static final List<Material> validSource = Arrays.asList(Material.COBBLESTONE, Material.NETHERRACK);
+	
+	private static final TestItem tester = new TestItem() {
+		
+		@Override
+		public boolean testItem(EntityItem item) {
+			Material m = CraftItemStack.asCraftMirror(item.getItemStack()).getType();
+			if(validFuel.contains(m) || validSource.contains(m)) {
+				return true;
+			}
+			return false;
+		}
+	};
 	
 	public SmithGolem(net.minecraft.server.v1_8_R3.World world) {
 		this(world.getWorld(), GolemRank.STONE);
@@ -143,13 +157,15 @@ public class SmithGolem extends EntityGolem {
 		return count;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalSmith(this, 1.0D));
-		this.goalSelector.a(2, new PathfinderGoalStayAtSpawn(this, 16, true));
+		this.goalSelector.a(3, new PathfinderGoalStayAtSpawn(this, 16, true));
 		this.goalSelector.a(4, new PathfinderGoalLinger(this, 5));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
+		this.targetSelector.a(1, new PathfinderGoalNearestItem(this, 10, true, false, tester));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityGolem.class, 8f));
 		this.targetSelector.a(2, new PathfinderGoalHurtByTarget(this, true));

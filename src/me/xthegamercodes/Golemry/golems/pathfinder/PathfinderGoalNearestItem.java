@@ -5,13 +5,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityItem;
-import net.minecraft.server.v1_8_R3.IEntitySelector;
 
 public class PathfinderGoalNearestItem<T extends EntityItem> extends PathfinderGoalTargetEntity {
 
@@ -19,8 +15,9 @@ public class PathfinderGoalNearestItem<T extends EntityItem> extends PathfinderG
 	protected final Class<T> a;
 	private final int g;
 	protected final DistanceComparator b;
-	protected Predicate<? super T> c;
 	protected EntityItem d;
+	
+	private final TestItem tester;
 
 	public PathfinderGoalNearestItem(EntityGolem entitycreature, boolean flag) {
 		this(entitycreature, flag, false);
@@ -30,27 +27,23 @@ public class PathfinderGoalNearestItem<T extends EntityItem> extends PathfinderG
 		this(entitycreature, 10, flag, flag1, null);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public PathfinderGoalNearestItem(EntityGolem entitygolem, int i, boolean flag, boolean flag1, final Predicate<? super T> predicate) {
+	@SuppressWarnings({"unchecked"})
+	public PathfinderGoalNearestItem(EntityGolem entitygolem, int i, boolean flag, boolean flag1, 
+			TestItem tester) {
 		super(entitygolem, flag, flag1);
 		this.instance = this;
 		this.a = (Class<T>) EntityItem.class;
 		this.g = i;
 		this.b = new DistanceComparator(entitygolem);
-		a(1);
-		this.c = new Predicate() {
-			public boolean a(T t0) {
-				if((predicate != null) && (!predicate.apply(t0))) {
-					return false;
-				}
-
-				return instance.a(t0, false);
-			}
-
-			public boolean apply(Object object) {
-				return a((T) object);
+		this.tester = tester != null ? tester : new TestItem() {
+			
+			@Override
+			public boolean testItem(EntityItem item) {
+				return true;
 			}
 		};
+		
+		a(1);
 	}
 
 	public boolean a() {
@@ -58,13 +51,19 @@ public class PathfinderGoalNearestItem<T extends EntityItem> extends PathfinderG
 			return false;
 		}
 		double d0 = f();
-		List<T> list = this.e.world.a(this.a, this.e.getBoundingBox().grow(d0, 4.0D, d0), Predicates.and(this.c, IEntitySelector.d));
+		List<T> list = this.e.world.a(this.a, this.e.getBoundingBox().grow(d0, 4.0D, d0));
 
 		Collections.sort(list, this.b);
 
 		for(Entity ent : new ArrayList<>(list)) {
 			if(!(ent instanceof EntityItem)) {
 				list.remove(ent);
+			}
+			else {
+				EntityItem item = (EntityItem) ent;
+				if(!tester.testItem(item)) {
+					list.remove(ent);
+				}
 			}
 		}
 
@@ -99,5 +98,9 @@ public class PathfinderGoalNearestItem<T extends EntityItem> extends PathfinderG
 		public int compare(Entity object, Entity object1) {
 			return a(object, object1);
 		}
+	}
+
+	public static abstract class TestItem {
+		public abstract boolean testItem(EntityItem item);
 	}
 }
