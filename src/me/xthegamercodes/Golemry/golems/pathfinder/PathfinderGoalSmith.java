@@ -10,26 +10,27 @@ import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.TileEntityFurnace;
 import net.minecraft.server.v1_8_R3.World;
 
-public class PathfinderGoalSmith extends PathfinderGoalTargetBlock {
+public class PathfinderGoalSmith extends PathfinderGoalGoto {
 	
 	private SmithGolem smith;
 
-	public PathfinderGoalSmith(SmithGolem c, int h) {
-		super(c, h);
-		smith = c;
+	public PathfinderGoalSmith(SmithGolem paramEntity, double paramDouble) {
+		super(paramEntity, paramDouble, 4);
+		this.smith = paramEntity;
 	}
 	
-	@Override
 	public void e() {
 		super.e();
 
-		this.c.getControllerLook().a(this.b.getX() + 0.5D, this.b.getY() + 1, this.b.getZ() + 0.5D, 10.0F, this.c.bQ());
+		this.smith.getControllerLook().a(this.b.getX() + 0.5D, this.b.getY() + 1, this.b.getZ() + 0.5D, 10.0F, this.smith.bQ());
 		if(f()) {
-			World localWorld = this.c.getWorld();
+			World localWorld = this.smith.world;
 
 			IBlockData localIBlockData = localWorld.getType(this.b);
 			Block localBlock = localIBlockData.getBlock();
-			
+			/*
+			 * When they are in range of a chest.
+			 */
 			if(localBlock instanceof BlockFurnace) {
 				/*
 				 * [0] = source
@@ -91,19 +92,22 @@ public class PathfinderGoalSmith extends PathfinderGoalTargetBlock {
 					this.smith.inventory.setItem(1, null);
 				}
 			}
+
+			this.a = 10;
 		}
 	}
 
 	@Override
 	protected boolean a(World paramWorld, BlockPosition paramBlockPosition) {
 		Block localBlock = paramWorld.getType(paramBlockPosition).getBlock();
-		
-		if((localBlock == Blocks.FURNACE) || (localBlock == Blocks.LIT_FURNACE)) {
-			if(this.smith.items() != 0) {
+		/*
+		 * This area causes them to navigate towards a chest.
+		 */
+		if((localBlock == Blocks.FURNACE) || localBlock == Blocks.LIT_FURNACE) {
+			if(this.smith.items() > 0) { // If the Seeker has items in it's inventory
 				return true;
 			}
 		}
-		
 		return false;
 	}
 
