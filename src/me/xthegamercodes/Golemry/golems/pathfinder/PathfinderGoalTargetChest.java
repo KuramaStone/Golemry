@@ -1,5 +1,8 @@
 package me.xthegamercodes.Golemry.golems.pathfinder;
 
+import org.bukkit.scheduler.BukkitRunnable;
+
+import me.xthegamercodes.Golemry.Golemry;
 import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.BlockChest;
@@ -47,7 +50,7 @@ public class PathfinderGoalTargetChest extends PathfinderGoalGoto {
 				TileEntityChest localChest = (TileEntityChest) localWorld.getTileEntity(this.b);
 				InventorySubcontainer inventory = this.c.inventory;
 
-				localChest.getWorld().playBlockAction(localChest.getPosition(), localChest.w(), 1, 1); // 1 = open, 0 = close
+				playChestAnimation(this.b, localChest, true);
 
 				for(int i = 0; i < inventory.getSize(); i++) { // Get all items in Seeker's inventory
 					ItemStack itemstack = inventory.getItem(i);
@@ -88,12 +91,29 @@ public class PathfinderGoalTargetChest extends PathfinderGoalGoto {
 					}
 				}
 
-				localChest.getWorld().playBlockAction(localChest.getPosition(), localChest.w(), 1, 0); // 1 = open, 0 = close
+				startCloseDelay(this.b, localChest);
+				
 			}
 
 			this.a = 10;
 		}
 	}
+
+    private void startCloseDelay(BlockPosition position, TileEntityChest localChest) {
+		BukkitRunnable br = new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				playChestAnimation(position, localChest, false);
+			}
+		};
+		
+		br.runTaskLater(Golemry.getPlugin(), 40l);
+	}
+
+	public void playChestAnimation(BlockPosition position, TileEntityChest chest, boolean open) {
+        chest.getWorld().playBlockAction(position, chest.w(), 1, open ? 1 : 0);
+    }
 
 	private ItemStack getFirstItem(TileEntityChest localChest, Item item) {
 		for(int i = 0; i < localChest.getSize(); i++) {

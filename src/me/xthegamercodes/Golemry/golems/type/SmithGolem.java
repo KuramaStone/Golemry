@@ -38,6 +38,12 @@ public class SmithGolem extends EntityGolem {
 	}
 	
 	@Override
+	public boolean a(EntityHuman entityhuman) {
+		entityhuman.openContainer(inventory);
+		return true;
+	}
+	
+	@Override
 	protected void dropDeathLoot(boolean flag, int i) {
 		for(ItemStack item : inventory.items) {
 			if(item != null) {
@@ -140,7 +146,7 @@ public class SmithGolem extends EntityGolem {
 	@Override
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
-		this.goalSelector.a(1, new PathfinderGoalSmith(this, 9));
+		this.goalSelector.a(1, new PathfinderGoalSmith(this, 1.0D));
 		this.goalSelector.a(2, new PathfinderGoalStayAtSpawn(this, 16, true));
 		this.goalSelector.a(4, new PathfinderGoalLinger(this, 5));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));

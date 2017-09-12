@@ -18,25 +18,30 @@ import me.xthegamercodes.Golemry.golems.type.GuardGolem;
 import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
 import me.xthegamercodes.Golemry.golems.type.MinerGolem;
 import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
+import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import me.xthegamercodes.Golemry.golems.utils.GolemUtils;
 import me.xthegamercodes.Golemry.listener.GolemCreationListener;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityTypes;
 
 public class Golemry extends JavaPlugin {
+	
+	private static Golemry instance;
 
 	public static String VERSION = "1.0.0";
 
-	private final List<String> golems = new ArrayList<>(Arrays.asList("Guard", "Harvest", "Miner", "Seeker", "Breeder"));
+	private final List<String> golems = new ArrayList<>(Arrays.asList("Breeder", "Guard", "Harvester", "Miner", "Seeker", "Smithy"));
 
 	@Override
 	public void onEnable() {
+		instance = this;
 		VERSION = getDescription().getVersion();
 		registerGolem(HarvestGolem.class, "HarvestGolem", 54);
 		registerGolem(SeekerGolem.class, "SeekerGolem", 54);
 		registerGolem(GuardGolem.class, "GuardGolem", 54);
 		registerGolem(MinerGolem.class, "MinerGolem", 54);
 		registerGolem(BreederGolem.class, "BreederGolem", 54);
+		registerGolem(SmithGolem.class, "SmithGolem", 54);
 
 		getServer().getPluginManager().registerEvents(new GolemCreationListener(), this);
 	}
@@ -81,10 +86,9 @@ public class Golemry extends JavaPlugin {
 						else if(args[0].equalsIgnoreCase("breeder")) {
 							entitygolem = new BreederGolem(GolemUtils.getWorld(player.getWorld()));
 						}
-						/*
-						 * else if(args[0].equalsIgnoreCase("prepare")) { prepare(player); return true;
-						 * }
-						 */
+						else if(args[0].equalsIgnoreCase("smithy")) {
+							entitygolem = new SmithGolem(GolemUtils.getWorld(player.getWorld()));
+						}
 
 						entitygolem.spawn(player.getLocation());
 						player.sendMessage(ChatColor.LIGHT_PURPLE + "Golem has been summoned!");
@@ -149,6 +153,10 @@ public class Golemry extends JavaPlugin {
 		}
 
 		return null;
+	}
+
+	public static Golemry getPlugin() {
+		return instance;
 	}
 
 }

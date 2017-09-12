@@ -4,27 +4,37 @@ import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.BlockFurnace;
 import net.minecraft.server.v1_8_R3.BlockPosition;
-import net.minecraft.server.v1_8_R3.Blocks;
 import net.minecraft.server.v1_8_R3.IBlockData;
+import net.minecraft.server.v1_8_R3.InventorySubcontainer;
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.TileEntityFurnace;
 import net.minecraft.server.v1_8_R3.World;
 
 public class PathfinderGoalSmith extends PathfinderGoalGoto {
-	
-	private SmithGolem smith;
+
+	private final SmithGolem c;
+	// private boolean d;
+	// private boolean e;
 
 	public PathfinderGoalSmith(SmithGolem paramEntity, double paramDouble) {
 		super(paramEntity, paramDouble, 4);
-		this.smith = paramEntity;
+		this.c = paramEntity;
 	}
-	
+
+	public boolean a() {
+		return super.a();
+	}
+
+	public boolean b() {
+		return super.b();
+	}
+
 	public void e() {
 		super.e();
 
-		this.smith.getControllerLook().a(this.b.getX() + 0.5D, this.b.getY() + 1, this.b.getZ() + 0.5D, 10.0F, this.smith.bQ());
+		this.c.getControllerLook().a(this.b.getX() + 0.5D, this.b.getY() + 1, this.b.getZ() + 0.5D, 10.0F, this.c.bQ());
 		if(f()) {
-			World localWorld = this.smith.world;
+			World localWorld = this.c.world;
 
 			IBlockData localIBlockData = localWorld.getType(this.b);
 			Block localBlock = localIBlockData.getBlock();
@@ -32,82 +42,91 @@ public class PathfinderGoalSmith extends PathfinderGoalGoto {
 			 * When they are in range of a chest.
 			 */
 			if(localBlock instanceof BlockFurnace) {
-				/*
-				 * [0] = source
-				 * [1] = fuel
-				 * [2] = result slot
-				 */
 				TileEntityFurnace furnace = (TileEntityFurnace) localWorld.getTileEntity(this.b);
-				
-				ItemStack source = this.smith.inventory.getItem(0);
-				ItemStack fuel = this.smith.inventory.getItem(1);
+				InventorySubcontainer inventory = this.c.inventory;
 
-				ItemStack f_source = furnace.getItem(0);
-				ItemStack f_fuel = furnace.getItem(1);
-				
-				if(f_source != null) {
-					if(f_source.doMaterialsMatch(source)) {
-						int f_amount = f_source.count;	
-						if(f_amount < f_source.getMaxStackSize()) {
-							int neededAmount = f_amount - f_source.getMaxStackSize();
-							
-							if(neededAmount <= source.count) { // 32 <= 33
-								source.count -= neededAmount;
-								f_source.count += neededAmount;
-							}
-							else { // 16 <= 15
-								f_source.count += source.count;
-								this.smith.inventory.setItem(0, null);
-							}
-							
-						}
-					}
-				}
-				else {
-					furnace.setItem(0, source);
-					this.smith.inventory.setItem(0, null);
+				if(!insertItemToFurnace(furnace, inventory, 0)) {
+					insertItemToFurnace(furnace, inventory, 1);
 				}
 
-				
-				if(f_fuel != null) {
-					if(f_fuel.doMaterialsMatch(fuel)) {
-						int f_amount = f_fuel.count;	
-						if(f_amount < f_fuel.getMaxStackSize()) {
-							int neededAmount = f_amount - f_fuel.getMaxStackSize();
-							
-							if(neededAmount <= fuel.count) { // 32 <= 33
-								fuel.count -= neededAmount;
-								f_fuel.count += neededAmount;
-							}
-							else { // 16 <= 15
-								f_fuel.count += fuel.count;
-								this.smith.inventory.setItem(1, null);
-							}
-							
-						}
-					}
-				}
-				else {
-					furnace.setItem(1, fuel);
-					this.smith.inventory.setItem(1, null);
-				}
 			}
 
 			this.a = 10;
 		}
 	}
 
-	@Override
+	private boolean insertItemToFurnace(TileEntityFurnace furnace, InventorySubcontainer inventory, int slot) {
+		ItemStack inFurnace = furnace.getItem(slot);
+		ItemStack inInv = inventory.getItem(slot);
+
+		if(inInv != null) {
+			if(inFurnace != null) {
+				if(inFurnace.doMaterialsMatch(inInv)) { // Checks if the items are the same
+					if(inFurnace.count < inFurnace.getMaxStackSize()) { // If count isn't 64 (or full). 32 < 64
+						int amountNeeded = inFurnace.getMaxStackSize() - inFurnace.count; // How much is needed to fill the stack.
+																							// 64 - 32 = 32
+						if(inInv.count <= amountNeeded) { // 16 <= 32
+							inFurnace.count += inInv.count;
+							inInv.count = 0;
+						}
+						else {
+							inInv.count -= amountNeeded;
+							inFurnace.count += amountNeeded;
+						}
+
+						if(inInv.count <= 0) {
+							inventory.setItem(slot, null);
+						}
+						
+						return true;
+
+					}
+				}
+			}
+			else {
+				furnace.setItem(slot, inInv);
+				inventory.setItem(slot, null);
+			}
+		}
+		
+
+		return false;
+	}
+
 	protected boolean a(World paramWorld, BlockPosition paramBlockPosition) {
 		Block localBlock = paramWorld.getType(paramBlockPosition).getBlock();
-		/*
-		 * This area causes them to navigate towards a chest.
-		 */
-		if((localBlock == Blocks.FURNACE) || localBlock == Blocks.LIT_FURNACE) {
-			if(this.smith.items() > 0) { // If the Seeker has items in it's inventory
+		
+		if(localBlock instanceof BlockFurnace) { //If block is a furnace
+			if(this.c.items() > 0) {
+				return doesFurnaceNeedItems(paramBlockPosition);
+			}
+		}
+		return false;
+	}
+
+	private boolean doesFurnaceNeedItems(BlockPosition paramBlockPosition) {
+		TileEntityFurnace furnace = (TileEntityFurnace) this.c.getWorld().getTileEntity(paramBlockPosition);
+		
+		return testInsertion(furnace, this.c.inventory, 0) || testInsertion(furnace, this.c.inventory, 1);
+	}
+	
+	/*
+	 * Tests if the furnace needs the item in that slot
+	 */
+	private boolean testInsertion(TileEntityFurnace furnace, InventorySubcontainer inventory, int slot) {
+		ItemStack inFurnace = furnace.getItem(slot);
+		ItemStack inInv = inventory.getItem(slot);
+		
+		if(inFurnace == null) {
+			return inInv != null;
+		}
+
+		if(inFurnace.doMaterialsMatch(inInv)) { // Checks if the items are the same
+			if(inFurnace.count < inFurnace.getMaxStackSize()) { // If count isn't 64 (or full). 32 < 64
 				return true;
 			}
 		}
+
 		return false;
 	}
 
