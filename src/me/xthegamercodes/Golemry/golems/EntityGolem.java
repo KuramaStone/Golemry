@@ -17,6 +17,7 @@ import me.xthegamercodes.Golemry.Golemry;
 import me.xthegamercodes.Golemry.golems.pathfinder.Controller;
 import net.minecraft.server.v1_8_R3.EntityZombie;
 import net.minecraft.server.v1_8_R3.InventorySubcontainer;
+import net.minecraft.server.v1_8_R3.Item;
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
@@ -27,16 +28,19 @@ public abstract class EntityGolem extends EntityZombie {
 
 	private final String golemName;
 
-	private String GOLEM_TYPEV = "Golemry v1.0";
+	private String GOLEM_TYPEV = "Golemry!";
 
 	protected final GolemRank rank;
 
 	private ArmorStand stand;
 
 	protected ItemStack helmet, chest, legs, boots;
+	
+	private boolean spawned = false;
 
 	public EntityGolem(World world, Color color, String customname, GolemRank rank) {
 		super(((CraftWorld) world).getHandle());
+		this.inventory = new InventorySubcontainer("Items", false, 9);
 		this.golemName = customname;
 		this.rank = rank;
 		this.moveController = new Controller(this);
@@ -99,8 +103,10 @@ public abstract class EntityGolem extends EntityZombie {
 	}
 
 	public boolean spawn(Location location) {
+		if(spawned)
+			return false;
 		setPositionRotation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-		
+
 		mark();
 
 		setEquipment(1, boots.cloneItemStack());
@@ -109,10 +115,13 @@ public abstract class EntityGolem extends EntityZombie {
 		setEquipment(4, helmet.cloneItemStack());
 
 		boolean bool = world.addEntity(this);
-		
-		updateArmourStand();
-		Golemry.getPlugin().allGolems.put(stand, this);
-		
+		if(bool) {
+			spawned = true;
+			
+			updateArmourStand();
+			Golemry.getPlugin().allGolems.put(stand, this);
+		}
+
 		return bool;
 	}
 
@@ -208,6 +217,27 @@ public abstract class EntityGolem extends EntityZombie {
 
 	public ArmorStand getStand() {
 		return stand;
+	}
+	
+	/*
+	 * Lists all entities the entity holds in the following format: id-amount-damage
+	 * 
+	 */
+	@Override
+	public String toString() {
+		String string = "";
+		
+		for(int i = 0; i < inventory.getSize(); i++) {
+			ItemStack item = inventory.getItem(i);
+			if(item != null) {
+				int itemID = Item.getId(item.getItem());
+				int amount = item.count;
+				int damage = item.getData();
+				string += itemID + "-" + amount + "-" + damage + " ";
+			}
+		}
+		
+		return string;
 	}
 
 }

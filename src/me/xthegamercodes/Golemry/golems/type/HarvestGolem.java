@@ -146,26 +146,5 @@ public class HarvestGolem extends EntityGolem {
 	public InventorySubcontainer getInventory() {
 		return inventory;
 	}
-	
-	/*
-	 * Lists all entities the entity holds in the following format: id-amount-damage
-	 * 
-	 */
-	@Override
-	public String toString() {
-		String string = "";
-		
-		for(int i = 0; i < inventory.getSize(); i++) {
-			ItemStack item = inventory.getItem(i);
-			if(item != null) {
-				int itemID = Item.getId(item.getItem());
-				int amount = item.count;
-				int damage = item.getData();
-				string += itemID + "-" + amount + "-" + damage + " ";
-			}
-		}
-		
-		return string;
-	}
 
 }

@@ -1,5 +1,7 @@
 package me.xthegamercodes.Golemry.golems.pathfinder;
 
+import org.bukkit.Bukkit;
+
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.PathfinderGoal;
@@ -53,7 +55,7 @@ public abstract class PathfinderGoalGoto extends PathfinderGoal {
 	}
 
 	public void e() {
-		if(this.c.c(this.b.up()) > range) {
+		if(this.c.c(this.b) > range) {
 			this.g = false;
 			this.e += 1;
 			if(this.e % 40 == 0) {
@@ -64,6 +66,7 @@ public abstract class PathfinderGoalGoto extends PathfinderGoal {
 			this.g = true;
 			this.e -= 1;
 		}
+		Bukkit.broadcastMessage(this.g + "");
 	}
 
 	protected boolean f() {

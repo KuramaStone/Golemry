@@ -74,12 +74,20 @@ public class Golemry extends JavaPlugin {
 			for(org.bukkit.entity.Entity entity : world.getEntities()) {
 				if(entity instanceof Zombie) {
 					if(EntityGolem.isEntityGolem((EntityZombie) GolemUtils.getNMSEntity(entity))) {
-						saveGolem((EntityGolem) GolemUtils.getNMSEntity(entity));
+						try {
+							saveGolem((EntityGolem) GolemUtils.getNMSEntity(entity));
+						}
+						catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 		}
 		golemStands.cancel();
+		
+		for(GolemType type : GolemType.values())
+			unregisterGolem(type.getGolemClass(), type.getEntityName());
 	}
 
 	@Override
@@ -171,18 +179,23 @@ public class Golemry extends JavaPlugin {
 		FileConfiguration config = cfg.getData();
 
 		for(String uid : config.getKeys(false)) {
-			String toString = config.getString(uid + ".string");
-			World world = Bukkit.getWorld(UUID.fromString(config.getString(uid + ".world")));
+			try {
+				String toString = config.getString(uid + ".string");
+				World world = Bukkit.getWorld(UUID.fromString(config.getString(uid + ".world")));
 
-			String[] d = config.getString(uid + ".location").split("/");
-			Location loc = new Location(world, Double.parseDouble(d[0]), Double.parseDouble(d[1]), Double.parseDouble(d[2]),
-					Float.parseFloat(d[3]), Float.parseFloat(d[4]));
+				String[] d = config.getString(uid + ".location").split("/");
+				Location loc = new Location(world, Double.parseDouble(d[0]), Double.parseDouble(d[1]), Double.parseDouble(d[2]),
+						Float.parseFloat(d[3]), Float.parseFloat(d[4]));
 
-			GolemType type = GolemType.getByID(config.getInt(uid + ".id"));
+				GolemType type = GolemType.getByID(config.getInt(uid + ".id"));
 
-			EntityGolem golem = GolemUtils.createGolem(GolemUtils.getWorld(world), type);
-			golem.spawn(loc);
-			golem.inventory.items = GolemUtils.buildItem(toString);
+				EntityGolem golem = GolemUtils.createGolem(GolemUtils.getWorld(world), type);
+				golem.spawn(loc);
+				golem.inventory.items = GolemUtils.buildItem(toString);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 			config.set(uid, null);
 		}
 		cfg.saveData();
@@ -199,11 +212,17 @@ public class Golemry extends JavaPlugin {
 		config.set(uid + ".string", toString);
 		config.set(uid + ".world", golem.getWorld().getWorld().getUID().toString());
 		config.set(uid + ".location", location);
-		config.set(uid + ".id", golem.getType().getId());
+		
+		String nameID = GolemUtils.getGolemName(golem).split(" ")[0];
+		Bukkit.broadcastMessage("nameID=" + nameID);
+		nameID = nameID.substring(1, nameID.length());
+		GolemType type = GolemType.getByID(Integer.valueOf(nameID));
+		
+		config.set(uid + ".id", type.getId());
 
 		cfg.saveData();
-		golem.getStand().remove();
 		golem.getBukkitEntity().remove();
+		golem.getStand().remove();
 	}
 
 	private void createGolemList() {
@@ -222,6 +241,19 @@ public class Golemry extends JavaPlugin {
 			((Map) getPrivateField(EntityTypes.class, "d")).put(customClass, name);
 			((Map) getPrivateField(EntityTypes.class, "f")).put(customClass, Integer.valueOf(54));
 			((Map) getPrivateField(EntityTypes.class, "g")).put(name, Integer.valueOf(54));
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes" })
+	public static void unregisterGolem(Class<? extends Entity> customClass, String name) {
+		try {
+			((Map) getPrivateField(EntityTypes.class, "c")).remove(name, customClass);
+			((Map) getPrivateField(EntityTypes.class, "d")).remove(customClass, name);
+			((Map) getPrivateField(EntityTypes.class, "f")).remove(customClass, Integer.valueOf(54));
+			((Map) getPrivateField(EntityTypes.class, "g")).remove(name, Integer.valueOf(54));
 		}
 		catch(Exception e) {
 			e.printStackTrace();

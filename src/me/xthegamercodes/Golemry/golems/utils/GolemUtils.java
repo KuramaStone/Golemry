@@ -199,7 +199,6 @@ public class GolemUtils {
 
 	public static boolean canCreate(Player player, GolemType type) {
 		String golemname = type.toString().toLowerCase();
-		golemname = golemname.substring(0, 1).toLowerCase() + golemname.substring(1, golemname.length());
 		
 		return player.hasPermission("Golemry.create." + golemname);
 	}

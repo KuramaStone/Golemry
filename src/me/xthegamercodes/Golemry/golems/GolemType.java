@@ -11,10 +11,10 @@ public enum GolemType {
 	GUARD(2, GuardGolem.class, "GuardGolem", Material.DIAMOND_SWORD),
 	HARVESTER(3, HarvestGolem.class, "HarvesterGolem", Material.DIAMOND_HOE),
 	MINER(4, MinerGolem.class, "MinerGolem", Material.DIAMOND_PICKAXE),
-	SEEKER(5, SeekerGolem.class, "SeekerGolem", Material.EYE_OF_ENDER),
-	SMITHY(6, SmithGolem.class, "SmithGolem", Material.COAL, 1),
-	LUMBER(7, LumberGolem.class, "LumberGolem", Material.DIAMOND_AXE),
-	ARBORIST(8, ArboristGolem.class, "ArborGolem", Material.LONG_GRASS);
+	SEEKER(5, SeekerGolem.class, "SeekerGolem", Material.EYE_OF_ENDER);
+//	SMITHY(6, SmithGolem.class, "SmithGolem", Material.COAL, 1),
+//	LUMBER(7, LumberGolem.class, "LumberGolem", Material.DIAMOND_AXE),
+//	ARBORIST(8, ArboristGolem.class, "ArborGolem", Material.LONG_GRASS);
 
 	private int id;
 	private Class<? extends EntityGolem> clazz;

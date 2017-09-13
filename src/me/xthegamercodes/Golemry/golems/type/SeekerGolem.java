@@ -145,7 +145,7 @@ public class SeekerGolem extends EntityGolem {
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalNearestItem(this, true));
-		this.goalSelector.a(3, new PathfinderGoalTargetChest(this, 1.0D, 3.0D));
+		this.goalSelector.a(3, new PathfinderGoalTargetChest(this, 1.0D));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityGolem.class, 8f));

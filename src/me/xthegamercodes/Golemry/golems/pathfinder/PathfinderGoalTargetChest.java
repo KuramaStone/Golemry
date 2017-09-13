@@ -21,8 +21,8 @@ public class PathfinderGoalTargetChest extends PathfinderGoalGoto {
 	// private boolean d;
 	// private boolean e;
 
-	public PathfinderGoalTargetChest(SeekerGolem paramEntity, double paramDouble, double range) {
-		super(paramEntity, paramDouble, 4, range);
+	public PathfinderGoalTargetChest(SeekerGolem paramEntity, double paramDouble) {
+		super(paramEntity, paramDouble, 4, 3.0D);
 		this.c = paramEntity;
 	}
 

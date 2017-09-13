@@ -22,7 +22,6 @@ import net.minecraft.server.v1_8_R3.GenericAttributes;
 import net.minecraft.server.v1_8_R3.IMonster;
 import net.minecraft.server.v1_8_R3.Item;
 import net.minecraft.server.v1_8_R3.ItemAxe;
-import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.ItemSword;
 import net.minecraft.server.v1_8_R3.PathfinderGoalFloat;
 import net.minecraft.server.v1_8_R3.PathfinderGoalHurtByTarget;
@@ -128,23 +127,6 @@ public class GuardGolem extends EntityGolem {
 				}
 			};
 		}
-	}
-
-	/*
-	 * Lists the weapon the entity holds in the following format: id-damage
-	 * 
-	 */
-	@Override
-	public String toString() {
-		ItemStack item = this.getEquipment(0);
-		String string = "";
-		if(item != null) {
-			int itemID = Item.getId(item.getItem());
-			int damage = item.getData();
-			string = itemID + "-" + 1 + "-" + damage;
-		}
-
-		return string;
 	}
 
 }
