@@ -17,7 +17,7 @@ public class PathfinderGoalSmith extends PathfinderGoalGoto {
 	// private boolean e;
 
 	public PathfinderGoalSmith(SmithGolem paramEntity, double paramDouble) {
-		super(paramEntity, paramDouble, 4);
+		super(paramEntity, paramDouble, 4, 3.0D);
 		this.c = paramEntity;
 	}
 

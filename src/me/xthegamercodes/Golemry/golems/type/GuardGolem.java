@@ -8,7 +8,6 @@ import com.google.common.base.Predicate;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalLinger;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStroll;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderRegen;
 import net.minecraft.server.v1_8_R3.Entity;
@@ -91,7 +90,6 @@ public class GuardGolem extends EntityGolem {
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalMeleeAttack(this, 1.0D, true));
-		this.goalSelector.a(2, new PathfinderGoalLinger(this, 16));
 		this.goalSelector.a(2, new PathfinderGoalStroll(this, 1.0D));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.goalSelector.a(1, new PathfinderRegen(this, 40, 1.0f));

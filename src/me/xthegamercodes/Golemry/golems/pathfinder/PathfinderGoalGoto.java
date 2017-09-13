@@ -16,15 +16,18 @@ public abstract class PathfinderGoalGoto extends PathfinderGoal {
 	private boolean g;
 	private int h;
 	private int i;
+	
+	private double range;
 
-	public PathfinderGoalGoto(EntityGolem paramEntityCreature, double paramDouble, int paramInt) {
-		this(paramEntityCreature, paramDouble, paramInt, 1);
+	public PathfinderGoalGoto(EntityGolem paramEntityCreature, double paramDouble, int paramInt, double range) {
+		this(paramEntityCreature, paramDouble, paramInt, range, 1);
 	}
 
-	public PathfinderGoalGoto(EntityGolem paramEntityCreature, double paramDouble, int paramInt, int paramDelay) {
+	public PathfinderGoalGoto(EntityGolem paramEntityCreature, double paramDouble, int paramInt, double range, int paramDelay) {
 		this.c = paramEntityCreature;
 		this.d = paramDouble;
 		this.h = paramInt;
+		this.range = range;
 		this.i = paramDelay;
 		a(5);
 	}
@@ -50,7 +53,7 @@ public abstract class PathfinderGoalGoto extends PathfinderGoal {
 	}
 
 	public void e() {
-		if(this.c.c(this.b.up()) > 1.0D) {
+		if(this.c.c(this.b.up()) > range) {
 			this.g = false;
 			this.e += 1;
 			if(this.e % 40 == 0) {
@@ -70,7 +73,7 @@ public abstract class PathfinderGoalGoto extends PathfinderGoal {
 	private boolean g() {
 		int i = this.h;
 		// int j = 1;
-		BlockPosition localBlockPosition1 = new BlockPosition(this.c.spawnedLocation);
+		BlockPosition localBlockPosition1 = new BlockPosition(this.c);
 		for(int k = 0; k <= 1; k = k > 0 ? -k : 1 - k) {
 			for(int m = 0; m < i; m++) {
 				for(int n = 0; n <= m; n = n > 0 ? -n : 1 - n) {

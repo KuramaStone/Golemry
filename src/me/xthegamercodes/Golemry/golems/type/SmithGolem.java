@@ -11,11 +11,9 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalLinger;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem.TestItem;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalSmith;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityItem;
 import net.minecraft.server.v1_8_R3.InventorySubcontainer;
@@ -52,12 +50,6 @@ public class SmithGolem extends EntityGolem {
 	}
 	
 	@Override
-	public boolean a(EntityHuman entityhuman) {
-		entityhuman.openContainer(inventory);
-		return true;
-	}
-	
-	@Override
 	protected void dropDeathLoot(boolean flag, int i) {
 		for(ItemStack item : inventory.items) {
 			if(item != null) {
@@ -67,8 +59,8 @@ public class SmithGolem extends EntityGolem {
 	}
 	
 	/*
-	 * Always puts source materials into slot 1
-	 * Always puts fuel materials into slot 0
+	 * Always puts source materials into slot 0
+	 * Always puts fuel materials into slot 1
 	 */
 	@Override
 	protected void a(EntityItem entityitem) {
@@ -162,8 +154,6 @@ public class SmithGolem extends EntityGolem {
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalSmith(this, 1.0D));
-		this.goalSelector.a(3, new PathfinderGoalStayAtSpawn(this, 16, true));
-		this.goalSelector.a(4, new PathfinderGoalLinger(this, 5));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.targetSelector.a(1, new PathfinderGoalNearestItem(this, 10, true, false, tester));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));

@@ -9,8 +9,6 @@ import org.bukkit.Color;
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalHarvest;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalLinger;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityItem;
 import net.minecraft.server.v1_8_R3.InventorySubcontainer;
@@ -138,8 +136,6 @@ public class HarvestGolem extends EntityGolem {
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalHarvest(this, 1.0D));
-		this.goalSelector.a(2, new PathfinderGoalStayAtSpawn(this, 5, true));
-		this.goalSelector.a(3, new PathfinderGoalLinger(this, 5));
 		// this.goalSelector.a(2, new PathfinderGoalStroll(this, 1.0D));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));
@@ -149,6 +145,27 @@ public class HarvestGolem extends EntityGolem {
 
 	public InventorySubcontainer getInventory() {
 		return inventory;
+	}
+	
+	/*
+	 * Lists all entities the entity holds in the following format: id-amount-damage
+	 * 
+	 */
+	@Override
+	public String toString() {
+		String string = "";
+		
+		for(int i = 0; i < inventory.getSize(); i++) {
+			ItemStack item = inventory.getItem(i);
+			if(item != null) {
+				int itemID = Item.getId(item.getItem());
+				int amount = item.count;
+				int damage = item.getData();
+				string += itemID + "-" + amount + "-" + damage + " ";
+			}
+		}
+		
+		return string;
 	}
 
 }

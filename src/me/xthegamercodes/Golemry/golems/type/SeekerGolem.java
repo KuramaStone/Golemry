@@ -1,13 +1,19 @@
 package me.xthegamercodes.Golemry.golems.type;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.inventory.Inventory;
+
+import com.google.common.collect.Lists;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalLinger;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalTargetChest;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityItem;
@@ -21,6 +27,8 @@ import net.minecraft.server.v1_8_R3.PathfinderGoalRandomLookaround;
 import net.minecraft.server.v1_8_R3.World;
 
 public class SeekerGolem extends EntityGolem {
+	
+	private List<EntityHuman> playersInInv = Lists.newArrayList();
 
 	public SeekerGolem(World world) {
 		this(world, GolemRank.STONE);
@@ -41,6 +49,8 @@ public class SeekerGolem extends EntityGolem {
 	@Override
 	public boolean a(EntityHuman entityhuman) {
 		entityhuman.openContainer(inventory);
+		playersInInv.add(entityhuman);
+		Bukkit.broadcastMessage("1");
 		return true;
 	}
 
@@ -54,6 +64,47 @@ public class SeekerGolem extends EntityGolem {
 		else {
 			itemstack.count = itemstack1.count;
 		}
+	}
+	
+	@Override
+	public void die() {
+		Bukkit.broadcastMessage("2");
+		for(EntityHuman human : new ArrayList<>(playersInInv)) {
+			if(compare(human.activeContainer.getBukkitView().getTopInventory(), inventory)) {
+				human.closeInventory();
+				playersInInv.remove(human);
+				Bukkit.broadcastMessage("3");
+			}
+		}
+		super.die();
+	}
+
+	private boolean compare(Inventory i1, InventorySubcontainer i2) {
+
+		for(int i = 0; i < 9; i++) {
+			if(!areItemsSame(CraftItemStack.asNMSCopy(i1.getItem(i)), i2.getItem(i))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	private boolean areItemsSame(ItemStack a, ItemStack b) {
+		if((a == null) && (b == null)) {
+			return true;
+		}
+		
+		if(a != null && b != null) {
+			if(a.hasName() && b.hasName()) {
+				if(a.getName().equals(b.getName())) {
+					if(ItemStack.fastMatches(a, b)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -70,9 +121,7 @@ public class SeekerGolem extends EntityGolem {
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(1, new PathfinderGoalNearestItem(this, true));
-		this.goalSelector.a(2, new PathfinderGoalStayAtSpawn(this, 16, true));
-		this.goalSelector.a(3, new PathfinderGoalTargetChest(this, 1.0D));
-		this.goalSelector.a(4, new PathfinderGoalLinger(this, 5));
+		this.goalSelector.a(3, new PathfinderGoalTargetChest(this, 1.0D, 3.0D));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityGolem.class, 8f));

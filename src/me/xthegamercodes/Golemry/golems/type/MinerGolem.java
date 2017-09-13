@@ -5,12 +5,10 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.bukkit.Location;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalMine;
-import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalStayAtSpawn;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.Blocks;
 import net.minecraft.server.v1_8_R3.EntityHuman;
@@ -22,7 +20,6 @@ import net.minecraft.server.v1_8_R3.PathfinderGoalFloat;
 import net.minecraft.server.v1_8_R3.PathfinderGoalHurtByTarget;
 import net.minecraft.server.v1_8_R3.PathfinderGoalLookAtPlayer;
 import net.minecraft.server.v1_8_R3.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_8_R3.Vec3D;
 import net.minecraft.server.v1_8_R3.World;
 
 public class MinerGolem extends EntityGolem {
@@ -45,14 +42,6 @@ public class MinerGolem extends EntityGolem {
 		validBlocks = Arrays.asList(Blocks.STONE, Blocks.GRASS, Blocks.GRAVEL, Blocks.IRON_ORE, Blocks.GOLD_ORE, Blocks.COAL_ORE, Blocks.DIAMOND_ORE, Blocks.LAPIS_ORE, Blocks.REDSTONE_ORE, Blocks.LIT_REDSTONE_ORE, Blocks.EMERALD_ORE, Blocks.QUARTZ_ORE, Blocks.MOSSY_COBBLESTONE, Blocks.MONSTER_EGG);
 		
 		j(true);
-	}
-
-	@Override
-	public boolean spawn(Location location) {
-		boolean bool = super.spawn(location);
-		spawnedLocation = new Vec3D(location.getBlockX() + 0.5d, location.getY(), location.getBlockZ() + 0.5d);
-		mark();
-		return bool;
 	}
 
 	@Override
@@ -80,7 +69,6 @@ public class MinerGolem extends EntityGolem {
 	@Override
 	protected void goals() {
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
-		this.goalSelector.a(1, new PathfinderGoalStayAtSpawn(this, 0.25D, false));
 		this.goalSelector.a(1, new PathfinderGoalMine(this, validBlocks, 2, 20));
 		this.goalSelector.a(3, new PathfinderGoalRandomLookaround(this));
 		this.targetSelector.a(2, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8f));

@@ -1,5 +1,6 @@
 package me.xthegamercodes.Golemry.golems.utils;
 
+import java.lang.reflect.Constructor;
 import java.util.Random;
 
 import org.bukkit.Location;
@@ -12,12 +13,6 @@ import org.bukkit.entity.Player;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemType;
-import me.xthegamercodes.Golemry.golems.type.BreederGolem;
-import me.xthegamercodes.Golemry.golems.type.GuardGolem;
-import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
-import me.xthegamercodes.Golemry.golems.type.MinerGolem;
-import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
-import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityZombie;
 import net.minecraft.server.v1_8_R3.ItemStack;
@@ -83,7 +78,7 @@ public class GolemUtils {
 			int i4 = localRandom.nextInt(2 * wanderRange) - wanderRange;
 			if((paramVec3D == null) || (i2 * paramVec3D.a + i4 * paramVec3D.c >= 0.0D)) {
 				if((paramEntity.ck()) && (wanderRange > 1)) {
-					BlockPosition center = new BlockPosition(paramEntity.spawnedLocation);
+					BlockPosition center = new BlockPosition(paramEntity);
 					if(paramEntity.locX > center.getX()) {
 						i2 -= localRandom.nextInt(wanderRange / 2);
 					}
@@ -148,24 +143,11 @@ public class GolemUtils {
 	}
 
 	public static GolemType getGolemType(Material material, short damage) {
-		if(material == Material.DIAMOND_HOE) { // Harvest
-			return GolemType.HARVESTER;
-		}
-		else if(material == Material.EYE_OF_ENDER) { // Seeker
-			return GolemType.SEEKER;
-		}
-		else if(material == Material.DIAMOND_SWORD) { // Guard
-			return GolemType.GUARD;
-		}
-		else if(material == Material.DIAMOND_PICKAXE) { // Miner
-			return GolemType.MINER;
-		}
-		else if(material == Material.RED_ROSE) { // Breeder
-			return GolemType.BREEDER;
-		}
-		else if(material == Material.COAL) {
-			if(damage == 1) {
-				return GolemType.SMITHY;
+		for(GolemType type : GolemType.values()) {
+			if(type.getSummoningItem() == material) {
+				if(type.getDamage() == damage) {
+					return type;
+				}
 			}
 		}
 
@@ -174,25 +156,17 @@ public class GolemUtils {
 
 	public static EntityGolem createGolem(World world, GolemType type) {
 
-		if(type == GolemType.BREEDER) {
-			return new BreederGolem(world);
+		try {
+			Constructor<?> ctor = type.getGolemClass().getConstructor(World.class);
+			return (EntityGolem) ctor.newInstance(world);
 		}
-		else if(type == GolemType.GUARD) {
-			return new GuardGolem(world);
+		catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("-------------------------");
+			System.out.println("Please report this error to the developer of this plugin.");
+			System.out.println("-------------------------");
 		}
-		else if(type == GolemType.HARVESTER) {
-			return new HarvestGolem(world);
-		}
-		else if(type == GolemType.MINER) {
-			return new MinerGolem(world);
-		}
-		else if(type == GolemType.SEEKER) {
-			return new SeekerGolem(world);
-		}
-		else if(type == GolemType.SMITHY) {
-			return new SmithGolem(world);
-		}
-
+		
 		return null;
 	}
 
@@ -208,7 +182,7 @@ public class GolemUtils {
 			return new ItemStack[9];
 		}
 		String[] items = string.split(" ");
-		ItemStack[] itemstack = new ItemStack[items.length];
+		ItemStack[] itemstack = new ItemStack[9];
 
 		int n = 0;
 		for(String item : items) {

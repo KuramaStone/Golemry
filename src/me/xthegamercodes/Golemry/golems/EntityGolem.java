@@ -15,23 +15,16 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import me.xthegamercodes.Golemry.Golemry;
 import me.xthegamercodes.Golemry.golems.pathfinder.Controller;
-import me.xthegamercodes.Golemry.golems.type.BreederGolem;
-import me.xthegamercodes.Golemry.golems.type.GuardGolem;
-import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
-import me.xthegamercodes.Golemry.golems.type.MinerGolem;
-import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
-import me.xthegamercodes.Golemry.golems.type.SmithGolem;
 import net.minecraft.server.v1_8_R3.EntityZombie;
 import net.minecraft.server.v1_8_R3.InventorySubcontainer;
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
-import net.minecraft.server.v1_8_R3.Vec3D;
 
 public abstract class EntityGolem extends EntityZombie {
 
 	public InventorySubcontainer inventory;
-	
+
 	private final String golemName;
 
 	private String GOLEM_TYPEV = "Golemry v1.0";
@@ -41,7 +34,6 @@ public abstract class EntityGolem extends EntityZombie {
 	private ArmorStand stand;
 
 	protected ItemStack helmet, chest, legs, boots;
-	public Vec3D spawnedLocation;
 
 	public EntityGolem(World world, Color color, String customname, GolemRank rank) {
 		super(((CraftWorld) world).getHandle());
@@ -59,7 +51,12 @@ public abstract class EntityGolem extends EntityZombie {
 		this.persistent = true;
 	}
 
+	private boolean keepStand = true;
+
 	public void updateArmourStand() {
+		if(!keepStand) {
+			return;
+		}
 		Location loc = new Location(world.getWorld(), locX, locY - 1.0, locZ, yaw, pitch);
 		if((stand == null) || (stand.isDead())) {
 			stand = (ArmorStand) loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
@@ -72,10 +69,8 @@ public abstract class EntityGolem extends EntityZombie {
 		else {
 			stand.teleport(loc);
 		}
-		// Bukkit.broadcastMessage(loc.getBlockX() + " " + loc.getBlockY() + " " +
-		// loc.getBlockZ());
 	}
-	
+
 	@Override
 	public void die() {
 		super.die();
@@ -88,7 +83,7 @@ public abstract class EntityGolem extends EntityZombie {
 
 	protected void mark() {
 		GOLEM_TYPEV = "g" + type.getId() +
-				" l" + (spawnedLocation.a + "/" + spawnedLocation.b + "/" + spawnedLocation.c) +
+				" l" + (0 + "/" + 0 + "/" + 0) +
 				" v" + Golemry.VERSION;
 
 		NBTTagCompound nbt = new NBTTagCompound();
@@ -104,7 +99,6 @@ public abstract class EntityGolem extends EntityZombie {
 	}
 
 	public boolean spawn(Location location) {
-		spawnedLocation = new Vec3D(location.getX(), location.getY(), location.getZ());
 		setPosition(location.getX(), location.getY(), location.getZ());
 
 		mark();
@@ -113,9 +107,13 @@ public abstract class EntityGolem extends EntityZombie {
 		setEquipment(2, legs.cloneItemStack());
 		setEquipment(3, chest.cloneItemStack());
 		setEquipment(4, helmet.cloneItemStack());
-		setCustomNameVisible(false);
 
-		return world.addEntity(this);
+		boolean bool = world.addEntity(this);
+		
+		updateArmourStand();
+		Golemry.getPlugin().allGolems.put(stand, this);
+		
+		return bool;
 	}
 
 	protected ItemStack armour(Material leatherArmour, Color color) {
@@ -185,23 +183,11 @@ public abstract class EntityGolem extends EntityZombie {
 
 	public GolemType getType() {
 		if(type == null) {
-			if(this instanceof BreederGolem) {
-				type = GolemType.BREEDER;
-			}
-			else if(this instanceof GuardGolem) {
-				type = GolemType.GUARD;
-			}
-			else if(this instanceof HarvestGolem) {
-				type = GolemType.HARVESTER;
-			}
-			else if(this instanceof MinerGolem) {
-				type = GolemType.MINER;
-			}
-			else if(this instanceof SeekerGolem) {
-				type = GolemType.SEEKER;
-			}
-			else if(this instanceof SmithGolem) {
-				type = GolemType.SMITHY;
+			for(GolemType type : GolemType.values()) {
+				if(type.getGolemClass().getSimpleName().equals(this.getClass().getSimpleName())) {
+					this.type = type;
+					break;
+				}
 			}
 		}
 		return type;
@@ -216,12 +202,12 @@ public abstract class EntityGolem extends EntityZombie {
 		return nbt.hasKey("GolemryType");
 	}
 
-	public void setSpawnedLocation(Vec3D spawnedLocation) {
-		this.spawnedLocation = spawnedLocation;
-	}
-
 	public String getGolemName() {
 		return golemName;
+	}
+
+	public ArmorStand getStand() {
+		return stand;
 	}
 
 }

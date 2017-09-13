@@ -2,50 +2,132 @@ package me.xthegamercodes.Golemry;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import me.xthegamercodes.Golemry.golems.EntityGolem;
-import me.xthegamercodes.Golemry.golems.type.BreederGolem;
-import me.xthegamercodes.Golemry.golems.type.GuardGolem;
-import me.xthegamercodes.Golemry.golems.type.HarvestGolem;
-import me.xthegamercodes.Golemry.golems.type.MinerGolem;
-import me.xthegamercodes.Golemry.golems.type.SeekerGolem;
-import me.xthegamercodes.Golemry.golems.type.SmithGolem;
+import me.xthegamercodes.Golemry.golems.GolemType;
+import me.xthegamercodes.Golemry.golems.utils.Configuration;
 import me.xthegamercodes.Golemry.golems.utils.GolemUtils;
 import me.xthegamercodes.Golemry.listener.GolemCreationListener;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityTypes;
+import net.minecraft.server.v1_8_R3.EntityZombie;
 
 public class Golemry extends JavaPlugin {
-	
+
 	private static Golemry instance;
 
 	public static String VERSION = "1.0.0";
 
-	private final List<String> golems = new ArrayList<>(Arrays.asList("Breeder", "Guard", "Harvester", "Miner", "Seeker", "Smithy"));
-	
+	private final List<String> golems = new ArrayList<>();
+
 	private static final String link = "http://bit.ly/2fghgPS";
 	
+	public Map<ArmorStand, EntityGolem> allGolems = Maps.newHashMap();
+	
+	private BukkitRunnable golemStands = new BukkitRunnable() {
+		
+		@Override
+		public void run() {
+			for(ArmorStand stand : Lists.newArrayList(allGolems.keySet())) {
+				if(allGolems.get(stand).dead) {
+					stand.remove();
+					allGolems.remove(stand);
+				}
+			}
+		}
+	};
+
 	@Override
 	public void onEnable() {
 		instance = this;
 		VERSION = getDescription().getVersion();
-		registerGolem(HarvestGolem.class, "HarvestGolem", 54);
-		registerGolem(SeekerGolem.class, "SeekerGolem", 54);
-		registerGolem(GuardGolem.class, "GuardGolem", 54);
-		registerGolem(MinerGolem.class, "MinerGolem", 54);
-		registerGolem(BreederGolem.class, "BreederGolem", 54);
-		registerGolem(SmithGolem.class, "SmithGolem", 54);
+		loadGolems();
+		golemStands.runTaskTimer(instance, 40l, 40l);
+
+		createGolemList();
 
 		getServer().getPluginManager().registerEvents(new GolemCreationListener(), this);
+	}
+
+	@Override
+	public void onDisable() {
+		for(World world : Bukkit.getWorlds()) {
+			for(org.bukkit.entity.Entity entity : world.getEntities()) {
+				if(entity instanceof Zombie) {
+					if(EntityGolem.isEntityGolem((EntityZombie) GolemUtils.getNMSEntity(entity))) {
+						saveGolem((EntityGolem) GolemUtils.getNMSEntity(entity));
+					}
+				}
+			}
+		}
+		golemStands.cancel();
+	}
+
+	private void loadGolems() {
+		Configuration cfg = new Configuration("golems_data.yml");
+		FileConfiguration config = cfg.getData();
+
+		for(String uid : config.getKeys(false)) {
+			String toString = config.getString(uid + ".string");
+			World world = Bukkit.getWorld(UUID.fromString(config.getString(uid + ".world")));
+
+			String[] d = config.getString(uid + ".location").split("/");
+			Location loc = new Location(world, Double.parseDouble(d[0]), Double.parseDouble(d[1]), Double.parseDouble(d[2]));
+
+			GolemType type = GolemType.getByID(config.getInt(uid + ".id"));
+
+			EntityGolem golem = GolemUtils.createGolem(GolemUtils.getWorld(world), type);
+			golem.spawn(loc);
+			golem.inventory.items = GolemUtils.buildItem(toString);
+			config.set(uid, null);
+		}
+		cfg.saveData();
+	}
+
+	private void saveGolem(EntityGolem golem) {
+		Configuration cfg = new Configuration("golems_data.yml");
+		FileConfiguration config = cfg.getData();
+
+		String uid = golem.getUniqueID().toString();
+		String toString = golem.toString();
+		String location = golem.locX + "/" + golem.locY + "/" + golem.locZ;
+
+		config.set(uid + ".string", toString);
+		config.set(uid + ".world", golem.getWorld().getWorld().getUID().toString());
+		config.set(uid + ".location", location);
+		config.set(uid + ".id", golem.getType().getId());
+
+		cfg.saveData();
+		golem.getStand().remove();
+		golem.getBukkitEntity().remove();
+	}
+
+	private void createGolemList() {
+		for(GolemType type : GolemType.values()) {
+			String name = type.getEntityName();
+			name = name.replace("Golem", "");
+			golems.add(name);
+		}
+		golems.stream().sorted((a, b) -> a.compareTo(b));
 	}
 
 	@Override
@@ -72,29 +154,14 @@ public class Golemry extends JavaPlugin {
 				Player player = (Player) sender;
 				if(player.hasPermission("Golemry.spawn")) {
 					if(args.length == 1) {
-						EntityGolem entitygolem = null;
-						if(args[0].equalsIgnoreCase("harvest")) {
-							entitygolem = new HarvestGolem(GolemUtils.getWorld(player.getWorld()));
-						}
-						else if(args[0].equalsIgnoreCase("seeker")) {
-							entitygolem = new SeekerGolem(GolemUtils.getWorld(player.getWorld()));
-						}
-						else if(args[0].equalsIgnoreCase("guard")) {
-							entitygolem = new GuardGolem(GolemUtils.getWorld(player.getWorld()));
-						}
-						else if(args[0].equalsIgnoreCase("miner")) {
-							entitygolem = new MinerGolem(GolemUtils.getWorld(player.getWorld()));
-						}
-						else if(args[0].equalsIgnoreCase("breeder")) {
-							entitygolem = new BreederGolem(GolemUtils.getWorld(player.getWorld()));
-						}
-						else if(args[0].equalsIgnoreCase("smithy")) {
-							entitygolem = new SmithGolem(GolemUtils.getWorld(player.getWorld()));
-						}
+						if(validGolem(args[0])) {
+							EntityGolem entitygolem = GolemUtils.createGolem(GolemUtils.getWorld(player.getWorld()),
+									GolemType.getByName(args[0] + "Golem"));
 
-						entitygolem.spawn(player.getLocation());
-						player.sendMessage(ChatColor.LIGHT_PURPLE + "Golem has been summoned!");
-						return true;
+							entitygolem.spawn(player.getLocation());
+							player.sendMessage(ChatColor.LIGHT_PURPLE + "Golem has been summoned!");
+							return true;
+						}
 					}
 					else {
 						sender.sendMessage(ChatColor.RED + "Usage: /sg [Harvest, Seeker, Guard, Miner, Breeder]");
@@ -127,7 +194,7 @@ public class Golemry extends JavaPlugin {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to do this.");
 			}
 		}
-		
+
 		else if(command.getName().equalsIgnoreCase("golemhelp")) {
 			for(String str : GolemUtils.HELP) {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
@@ -137,20 +204,29 @@ public class Golemry extends JavaPlugin {
 		return false;
 	}
 
+	private boolean validGolem(String string) {
+		for(String name : golems) {
+			if(name.equals(string)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void registerGolem(Class<? extends Entity> customClass, String name, int id) {
+	public static void registerGolem(Class<? extends Entity> customClass, String name) {
 		try {
 			((Map) getPrivateField(EntityTypes.class, "c")).put(name, customClass);
 			((Map) getPrivateField(EntityTypes.class, "d")).put(customClass, name);
-			((Map) getPrivateField(EntityTypes.class, "f")).put(customClass, Integer.valueOf(id));
-			((Map) getPrivateField(EntityTypes.class, "g")).put(name, Integer.valueOf(id));
+			((Map) getPrivateField(EntityTypes.class, "f")).put(customClass, Integer.valueOf(54));
+			((Map) getPrivateField(EntityTypes.class, "g")).put(name, Integer.valueOf(54));
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private Object getPrivateField(Class<?> clazz, String method) {
+	private static Object getPrivateField(Class<?> clazz, String method) {
 		try {
 			Field field = clazz.getDeclaredField(method);
 			field.setAccessible(true);
