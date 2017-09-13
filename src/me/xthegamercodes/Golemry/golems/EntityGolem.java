@@ -99,8 +99,8 @@ public abstract class EntityGolem extends EntityZombie {
 	}
 
 	public boolean spawn(Location location) {
-		setPosition(location.getX(), location.getY(), location.getZ());
-
+		setPositionRotation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+		
 		mark();
 
 		setEquipment(1, boots.cloneItemStack());

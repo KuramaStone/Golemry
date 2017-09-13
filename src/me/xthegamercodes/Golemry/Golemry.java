@@ -82,54 +82,6 @@ public class Golemry extends JavaPlugin {
 		golemStands.cancel();
 	}
 
-	private void loadGolems() {
-		Configuration cfg = new Configuration("golems_data.yml");
-		FileConfiguration config = cfg.getData();
-
-		for(String uid : config.getKeys(false)) {
-			String toString = config.getString(uid + ".string");
-			World world = Bukkit.getWorld(UUID.fromString(config.getString(uid + ".world")));
-
-			String[] d = config.getString(uid + ".location").split("/");
-			Location loc = new Location(world, Double.parseDouble(d[0]), Double.parseDouble(d[1]), Double.parseDouble(d[2]));
-
-			GolemType type = GolemType.getByID(config.getInt(uid + ".id"));
-
-			EntityGolem golem = GolemUtils.createGolem(GolemUtils.getWorld(world), type);
-			golem.spawn(loc);
-			golem.inventory.items = GolemUtils.buildItem(toString);
-			config.set(uid, null);
-		}
-		cfg.saveData();
-	}
-
-	private void saveGolem(EntityGolem golem) {
-		Configuration cfg = new Configuration("golems_data.yml");
-		FileConfiguration config = cfg.getData();
-
-		String uid = golem.getUniqueID().toString();
-		String toString = golem.toString();
-		String location = golem.locX + "/" + golem.locY + "/" + golem.locZ;
-
-		config.set(uid + ".string", toString);
-		config.set(uid + ".world", golem.getWorld().getWorld().getUID().toString());
-		config.set(uid + ".location", location);
-		config.set(uid + ".id", golem.getType().getId());
-
-		cfg.saveData();
-		golem.getStand().remove();
-		golem.getBukkitEntity().remove();
-	}
-
-	private void createGolemList() {
-		for(GolemType type : GolemType.values()) {
-			String name = type.getEntityName();
-			name = name.replace("Golem", "");
-			golems.add(name);
-		}
-		golems.stream().sorted((a, b) -> a.compareTo(b));
-	}
-
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		if(sender.hasPermission("Golemry.spawn")) {
@@ -154,6 +106,7 @@ public class Golemry extends JavaPlugin {
 				Player player = (Player) sender;
 				if(player.hasPermission("Golemry.spawn")) {
 					if(args.length == 1) {
+						args[0] = args[0].substring(0, 1).toUpperCase() + args[0].substring(1, args[0].length()).toLowerCase();
 						if(validGolem(args[0])) {
 							EntityGolem entitygolem = GolemUtils.createGolem(GolemUtils.getWorld(player.getWorld()),
 									GolemType.getByName(args[0] + "Golem"));
@@ -211,6 +164,55 @@ public class Golemry extends JavaPlugin {
 			}
 		}
 		return false;
+	}
+
+	private void loadGolems() {
+		Configuration cfg = new Configuration("golems_data.yml");
+		FileConfiguration config = cfg.getData();
+
+		for(String uid : config.getKeys(false)) {
+			String toString = config.getString(uid + ".string");
+			World world = Bukkit.getWorld(UUID.fromString(config.getString(uid + ".world")));
+
+			String[] d = config.getString(uid + ".location").split("/");
+			Location loc = new Location(world, Double.parseDouble(d[0]), Double.parseDouble(d[1]), Double.parseDouble(d[2]),
+					Float.parseFloat(d[3]), Float.parseFloat(d[4]));
+
+			GolemType type = GolemType.getByID(config.getInt(uid + ".id"));
+
+			EntityGolem golem = GolemUtils.createGolem(GolemUtils.getWorld(world), type);
+			golem.spawn(loc);
+			golem.inventory.items = GolemUtils.buildItem(toString);
+			config.set(uid, null);
+		}
+		cfg.saveData();
+	}
+
+	private void saveGolem(EntityGolem golem) {
+		Configuration cfg = new Configuration("golems_data.yml");
+		FileConfiguration config = cfg.getData();
+
+		String uid = golem.getUniqueID().toString();
+		String toString = golem.toString();
+		String location = golem.locX + "/" + golem.locY + "/" + golem.locZ + "/" + golem.yaw + "/" + golem.pitch;
+
+		config.set(uid + ".string", toString);
+		config.set(uid + ".world", golem.getWorld().getWorld().getUID().toString());
+		config.set(uid + ".location", location);
+		config.set(uid + ".id", golem.getType().getId());
+
+		cfg.saveData();
+		golem.getStand().remove();
+		golem.getBukkitEntity().remove();
+	}
+
+	private void createGolemList() {
+		for(GolemType type : GolemType.values()) {
+			String name = type.getEntityName();
+			name = name.replace("Golem", "");
+			golems.add(name);
+		}
+		golems.stream().sorted((a, b) -> a.compareTo(b));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

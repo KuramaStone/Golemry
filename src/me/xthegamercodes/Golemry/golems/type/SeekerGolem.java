@@ -3,18 +3,21 @@ package me.xthegamercodes.Golemry.golems.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.common.collect.Lists;
 
+import me.xthegamercodes.Golemry.Golemry;
 import me.xthegamercodes.Golemry.golems.EntityGolem;
 import me.xthegamercodes.Golemry.golems.GolemRank;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalNearestItem;
 import me.xthegamercodes.Golemry.golems.pathfinder.PathfinderGoalTargetChest;
+import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityItem;
 import net.minecraft.server.v1_8_R3.InventorySubcontainer;
@@ -29,6 +32,22 @@ import net.minecraft.server.v1_8_R3.World;
 public class SeekerGolem extends EntityGolem {
 	
 	private List<EntityHuman> playersInInv = Lists.newArrayList();
+	
+	private BukkitRunnable distanceChecker = new BukkitRunnable() {
+		
+		@Override
+		public void run() {
+			for(EntityHuman human : new ArrayList<>(playersInInv)) {
+				if(new BlockPosition(human).d(locX, locY, locZ) > 20.0D) {
+					human.closeInventory();
+					playersInInv.remove(human);
+				}
+				else if(!compare(human.activeContainer.getBukkitView().getTopInventory(), inventory)) {
+					playersInInv.remove(human);
+				}
+			}
+		}
+	};
 
 	public SeekerGolem(World world) {
 		this(world, GolemRank.STONE);
@@ -49,8 +68,9 @@ public class SeekerGolem extends EntityGolem {
 	@Override
 	public boolean a(EntityHuman entityhuman) {
 		entityhuman.openContainer(inventory);
-		playersInInv.add(entityhuman);
-		Bukkit.broadcastMessage("1");
+		if(!playersInInv.contains(entityhuman)) {
+			playersInInv.add(entityhuman);
+		}
 		return true;
 	}
 
@@ -68,15 +88,22 @@ public class SeekerGolem extends EntityGolem {
 	
 	@Override
 	public void die() {
-		Bukkit.broadcastMessage("2");
 		for(EntityHuman human : new ArrayList<>(playersInInv)) {
 			if(compare(human.activeContainer.getBukkitView().getTopInventory(), inventory)) {
 				human.closeInventory();
-				playersInInv.remove(human);
-				Bukkit.broadcastMessage("3");
 			}
+			playersInInv.remove(human);
 		}
 		super.die();
+	}
+	
+	@Override
+	public boolean spawn(Location location) {
+		boolean bool = super.spawn(location);
+
+		distanceChecker.runTaskTimer(Golemry.getPlugin(), 60l, 60l);
+		
+		return bool;
 	}
 
 	private boolean compare(Inventory i1, InventorySubcontainer i2) {
@@ -96,14 +123,11 @@ public class SeekerGolem extends EntityGolem {
 		}
 		
 		if(a != null && b != null) {
-			if(a.hasName() && b.hasName()) {
-				if(a.getName().equals(b.getName())) {
-					if(ItemStack.fastMatches(a, b)) {
-						return true;
-					}
-				}
+			if(ItemStack.fastMatches(a, b)) {
+				return true;
 			}
 		}
+		
 		return false;
 	}
 
